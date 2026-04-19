@@ -1,0 +1,34 @@
+baseURL               = "https://share.02370237.xyz/"
+languageCode          = "zh-CN"
+title                 = "WebStack-Hugo 网址导航"
+theme                 = "WebStack-Hugo"
+preserveTaxonomyNames = true
+disablePathToLower    = true
+hasCJKLanguage        = true
+publishDir            = "public"
+
+[params]
+    author        = "admin"
+    description   = "WebStack-Hugo 网址导航"
+    enablePreLoad = true
+    textPreLoad   = "Hugo 网址导航主题"
+    expandSidebar = true
+    logosPath     = "assets/images/logos"
+    defaultLogo   = "assets/images/logos/default.webp"
+    nightMode     = true
+    yiyan         = true
+
+[params.images]
+    favicon           = "assets/images/bi-favicon.png"
+    searchImageL      = "assets/images/bg-dna.jpg"
+    searchImageD      = "assets/images/bg-dna.jpg"
+    logoExpandLight   = "assets/images/bi-expand-dark.png"
+    logoExpandDark    = "assets/images/bi-expand-light.png"
+    logoCollapseLight = "assets/images/bi.png"
+    logoCollapseDark  = "assets/images/bi.png"
+
+[markup.goldmark.renderer]
+    unsafe = true
+
+[params.footer]
+    copyright = '&copy; 2024 - {year} WebStack-Hugo'

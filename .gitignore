@@ -1,0 +1,18 @@
+# Build output
+public/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Sensitive files
+.password_hash
+users.json
+backups/
+
+# Screenshots
+*.png
+
+# Playwright
+.playwright-mcp/

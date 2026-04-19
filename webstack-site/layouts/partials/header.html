@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f9f9f9" />
+    <title>{{ .Site.Title }}</title>
+    <link rel="shortcut icon" href="{{ absURL $.Site.Params.images.favicon }}" />
+    <meta name="keywords" content="{{ .Site.Title }}" />
+    {{ if $.Site.Params.seo.baiduSiteVer }}
+    <meta name="baidu-site-verification" content="{{ $.Site.Params.seo.baiduSiteVer }}" />
+    {{ end }}
+    <link rel="stylesheet" id="block-library-css"
+        href="{{ absURL "assets/css/block-library.min-5.6.2.css" }}" type="text/css" media="all" />
+    <link rel="stylesheet" id="iconfont-css" href="{{ absURL "assets/css/iconfont-3.03029.1.css" }}"
+        type="text/css" media="all" />
+    <link rel="stylesheet" id="bootstrap-css" href="{{ absURL "assets/css/bootstrap.min-4.3.1.css" }}"
+        type="text/css" media="all" />
+    <link rel="stylesheet" id="fancybox-css" href="{{ absURL "assets/css/fancybox.min-3.5.7.css" }}"
+        type="text/css" media="all" />
+    <link rel="stylesheet" id="iowen-css" href="{{ absURL "assets/css/style-3.03029.1.css" }}"
+        type="text/css" media="all" />
+    <link rel="stylesheet" id="custom-css" href="{{ absURL "assets/css/custom-style.css" }}"
+        type="text/css" media="all" />
+    <link rel="stylesheet" id="fortawesome-css" href="{{ absURL "assets/fontawesome-5.15.4/css/all.min.css" }}" type="text/css" />
+    <script type="text/javascript" src="{{ absURL "assets/js/jquery.min-3.2.1.js" }}" id="jquery-js"></script>
+    <script type="text/javascript" src="{{ absURL "assets/js/content-search.js" }}"  id="content-search-js"></script>
+    <!-- 百度统计 -->
+    <script>
+        {{ with .Site.Params.seo.baiduhmid }}
+        var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?{{ $.Site.Params.seo.baiduhmid }}";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        {{ end }}
+    </script>
+    <!-- end 百度统计 -->
+
+    <!-- 51.LA 网站统计 -->
+    {{ with .Site.Params.seo.tj51laid }}
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"{{ $.Site.Params.seo.tj51laid }}",ck:"{{ $.Site.Params.seo.tj51lack }}"})</script>    
+    {{ end }} 
+    <!-- end 51.LA 网站统计 -->
+
+    <!-- Google AdSense -->
+    {{ if .Site.Params.seo.GoogleAdsClient }}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $.Site.Params.seo.GoogleAdsClient }}" crossorigin="anonymous"></script>
+    {{ end }}
+    <!-- end Google AdSense -->
+
+    <!-- Fancybox -->
+    {{if .Page.Site.Params.fancybox }}
+    <link rel="stylesheet" id="fancybox-css" href="{{ absURL "assets/css/fancybox.min-3.5.7.css" }}"/>
+    <script type="text/javascript" id="fancybox-js" src="{{ absURL "assets/js/fancybox.min-3.5.7.js" }}"></script>
+    {{ end }}
+    <!-- end Fancybox -->
+
+
+    
+    
+    
+    
+    
+    {{ if and .Site.Data.settings .Site.Data.settings.backgroundImage }}
+    <style>
+        body {
+            background-image: url('{{ .Site.Data.settings.backgroundImage }}') !important;
+            background-size: cover !important;
+            background-attachment: fixed !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        /* 1. Add an overlay behind everything. Grey in light mode, Dark in dark mode. No blur to keep wallpaper perfectly sharp. */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background-color: rgba(0, 0, 0, 0.15) !important; /* 灰色遮罩 */
+        }
+        .io-black-mode::before,
+        .io-grey-mode.io-black-mode::before {
+            background-color: rgba(0, 0, 0, 0.4) !important; /* 深色模式保持略深的暗色遮罩 */
+        }
+        /* 2. Force ALL main containers and search areas to be absolutely transparent */
+        .page-container, .main-content, .grid-bg, .io-grey-mode .page-container .grid-bg {
+            background-color: transparent !important;
+            background-image: none !important;
+        }
+        
+        /* 彻底干掉搜索栏和顶部所有遮挡背景颜色的图层，包括JS动态写入的内联样式 */
+        .header-big, #search-bg, .big-header-banner, .header-big.bg-gradual::before, .io-black-mode .header-big.bg-gradual::before {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            backdrop-filter: none !important;
+        }
+
+        /* 3. 玻璃态：统一左侧栏与顶部导航栏的风格 */
+        .sidebar-nav-inner, .page-header {
+            background-color: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .io-black-mode .sidebar-nav-inner, .io-black-mode .page-header {
+            background-color: rgba(30, 30, 30, 0.6) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .io-grey-mode .sidebar-nav, .io-black-mode .sidebar-nav {
+            background-color: transparent !important;
+        }
+    </style>
+    {{ end }}
+</head>
+
+
+
+
+
+

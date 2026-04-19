@@ -1,0 +1,9 @@
+- item: 首页
+  icon: fa fa-home
+  link: "./"
+  mode: home
+
+- item: wiki
+  icon: fa fa-book
+  link: "#wiki-view"
+  mode: wiki

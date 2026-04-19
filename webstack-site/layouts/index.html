@@ -1,0 +1,32 @@
+{{ partial "header.html" . }}
+
+{{ partial "sidebar.html" . }}
+
+{{ partial "content_header.html" . }}
+
+<div id="page-content-view">
+<div id="home-view">
+{{ partial "content_search.html" . }}
+
+{{ partial "content_main.html" . }}
+
+{{ partial "content_footer.html" . }}
+</div>
+
+<div id="wiki-view" class="wiki-view d-none">
+    <div class="wiki-view__inner">
+        <iframe
+            id="wiki-iframe"
+            class="wiki-view__iframe"
+            title="Wiki"
+            data-src="https://brotherhong.com/docs/"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+</div>
+</div>
+
+{{ partial "modal_search.html" . }}
+
+{{ partial "footer.html" . }}
+

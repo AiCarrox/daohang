@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebStack 后台</title>
+<link rel="stylesheet" href="https://share.02370237.xyz/assets/css/bootstrap.min-4.3.1.css">
+<link rel="stylesheet" href="https://share.02370237.xyz/assets/fontawesome-5.15.4/css/all.min.css">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--border:#e2e8f0;--text:#1a202c;--muted:#718096;--primary:#4299e1;--danger:#e53e3e;--success:#48bb78;--warning:#ecc94b}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0}
+.navbar-admin{background:#2d3748;padding:10px 20px;display:flex;align-items:center;color:#fff;position:sticky;top:0;z-index:100}
+.navbar-admin .brand{font-size:18px;font-weight:700;margin-right:auto}
+.navbar-admin .user-badge{font-size:13px;color:#cbd5e0;margin-left:12px}
+.navbar-admin a,.navbar-admin button{color:#e2e8f0;background:none;border:none;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:4px;text-decoration:none;margin-left:6px}
+.navbar-admin a:hover,.navbar-admin button:hover{background:rgba(255,255,255,.1)}
+/* Login */
+.login-wrap{max-width:380px;margin:120px auto;background:var(--card);border-radius:12px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.login-wrap h2{text-align:center;margin-bottom:24px;font-size:22px}
+.login-wrap .form-group{margin-bottom:16px}
+.login-wrap label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block}
+.login-wrap input[type=password]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:15px}
+.login-wrap .remember{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.login-wrap .btn-login{width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;margin-top:12px}
+.login-wrap .btn-login:hover{opacity:.9}
+.login-wrap .error{color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none}
+/* Main layout */
+.admin-main{max-width:1000px;margin:20px auto;padding:0 16px}
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:#edf2f7}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{opacity:.9;background:var(--primary)}
+.btn-sm{padding:3px 8px;font-size:12px}
+.btn-danger{color:var(--danger);border-color:var(--danger)}
+.btn-danger:hover{background:#fff5f5}
+/* Category list */
+.cat-list{list-style:none;padding:0;margin:0}
+.cat-item{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.cat-header{display:flex;align-items:center;padding:10px 14px;cursor:pointer;user-select:none;gap:8px}
+.cat-header:hover{background:#f7fafc}
+.drag-handle{cursor:grab;color:#cbd5e0;font-size:16px;padding:0 4px}
+.drag-handle:active{cursor:grabbing}
+.cat-icon{width:28px;text-align:center;color:var(--primary);font-size:16px}
+.cat-name{font-weight:600;font-size:14px;flex:1}
+.cat-count{font-size:12px;color:var(--muted);margin-right:8px}
+.cat-actions{display:flex;gap:4px}
+.cat-body{display:none;border-top:1px solid var(--border);padding:8px}
+.cat-item.open .cat-body{display:block}
+.cat-item.open .cat-chevron{transform:rotate(90deg)}
+.cat-chevron{transition:transform .2s;color:var(--muted);font-size:12px}
+/* Term (sub-category) */
+.term-group{margin:4px 0 8px 0;border:1px solid #edf2f7;border-radius:6px;overflow:hidden}
+.term-header{display:flex;align-items:center;padding:6px 10px;background:#f7fafc;gap:6px;font-size:13px;font-weight:600;cursor:pointer}
+.term-header:hover{background:#edf2f7}
+.term-body{padding:4px 8px}
+/* Link rows */
+.link-list{min-height:20px}
+.link-item{display:flex;align-items:center;padding:6px 8px;border-radius:4px;gap:8px;font-size:13px;border:1px solid transparent;margin:2px 0}
+.link-item:hover{background:#f7fafc;border-color:var(--border)}
+.link-logo{width:20px;height:20px;border-radius:3px;object-fit:contain;flex-shrink:0}
+.link-title{font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.link-url{color:var(--muted);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-actions{display:flex;gap:4px;flex-shrink:0}
+/* Add link button */
+.add-row{padding:4px 8px}
+.add-row button{font-size:12px;color:var(--primary);background:none;border:1px dashed var(--primary);border-radius:4px;padding:4px 10px;cursor:pointer;width:100%}
+.add-row button:hover{background:#ebf8ff}
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card);border-radius:12px;padding:24px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.modal-box h3{margin:0 0 16px;font-size:18px}
+.modal-box .form-group{margin-bottom:12px}
+.modal-box label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block}
+.modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px}
+.modal-box textarea{resize:vertical;min-height:60px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.logo-preview{width:24px;height:24px;border-radius:3px;vertical-align:middle;margin-left:8px}
+/* Icon picker */
+.icon-picker{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-height:200px;overflow-y:auto;margin-top:8px;border:1px solid var(--border);border-radius:6px;padding:8px}
+.icon-picker i{font-size:18px;padding:8px;text-align:center;cursor:pointer;border-radius:4px;color:var(--text)}
+.icon-picker i:hover{background:#ebf8ff;color:var(--primary)}
+.icon-picker i.selected{background:var(--primary);color:#fff}
+/* Toast */
+.toast-wrap{position:fixed;top:60px;right:16px;z-index:300}
+.toast-msg{padding:10px 16px;border-radius:6px;color:#fff;font-size:13px;margin-bottom:6px;animation:fadeIn .3s;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.toast-msg.success{background:var(--success)}
+.toast-msg.error{background:var(--danger)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* Overlay spinner */
+.rebuild-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.7);z-index:250;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-size:14px;color:var(--muted)}
+.rebuild-overlay.show{display:flex}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Sortable placeholder */
+.sortable-placeholder{border:2px dashed #cbd5e0;border-radius:4px;margin:2px 0;min-height:36px;background:#f7fafc}
+.ui-sortable-helper{box-shadow:0 4px 12px rgba(0,0,0,.15);opacity:.9;background:#fff;border-radius:4px}
+</style>
+</head>
+<body>
+
+<nav class="navbar-admin">
+  <span class="brand"><i class="fas fa-cog"></i> WebStack 后台</span>
+  <span class="user-badge" id="current-user" style="display:none"></span>
+  <a href="https://share.02370237.xyz/" target="_blank"><i class="fas fa-external-link-alt"></i> 打开站点</a>
+  <button onclick="App.showPasswordModal()" id="btn-password" style="display:none"><i class="fas fa-key"></i> 修改密码</button>
+  <button onclick="App.logout()" id="btn-logout" style="display:none"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
+</nav>
+
+<!-- Login -->
+<div id="login-page" class="login-wrap" style="display:none">
+  <h2><i class="fas fa-lock"></i> 后台登录</h2>
+  <div class="form-group">
+    <label>用户名</label>
+    <select id="login-user"></select>
+  </div>
+  <div class="form-group">
+    <label>密码</label>
+    <input type="password" id="login-pw" placeholder="请输入密码" onkeydown="if(event.key==='Enter')App.login()">
+  </div>
+  <div class="form-group remember">
+    <input type="checkbox" id="login-remember" checked>
+    <label for="login-remember">30 天内保持登录</label>
+  </div>
+  <button class="btn-login" onclick="App.login()">登录</button>
+  <div class="error" id="login-error"></div>
+</div>
+
+<!-- Main panel -->
+<div id="admin-panel" class="admin-main" style="display:none">
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="App.addCategory()"><i class="fas fa-plus"></i> 新增分类</button>
+    <button class="btn" onclick="App.addLink()"><i class="fas fa-link"></i> 快速添加站点</button>
+    <button class="btn" onclick="App.expandAll()"><i class="fas fa-expand-alt"></i> 全部展开</button>
+    <button class="btn" onclick="App.collapseAll()"><i class="fas fa-compress-alt"></i> 全部收起</button>
+    <button class="btn" onclick="App.openSettings()"><i class="fas fa-cog"></i> 站点设置</button>
+    <button class="btn" onclick="App.exportData()"><i class="fas fa-download"></i> 导出</button>
+    <button class="btn" onclick="App.importData()"><i class="fas fa-upload"></i> 导入</button>
+    <input type="file" id="import-file-input" accept=".yml,.yaml,.json" style="display:none">
+  </div>
+  <ul class="cat-list" id="cat-list"></ul>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- Rebuild overlay -->
+<div class="rebuild-overlay" id="rebuild-overlay">
+  <div class="spinner"></div>
+  <span>正在保存并重建...</span>
+</div>
+
+<script src="https://share.02370237.xyz/assets/js/jquery.min-3.2.1.js"></script>
+<script src="https://share.02370237.xyz/assets/js/jquery-ui.min.1.12.1.js"></script>
+<script>
+const ICONS = [
+  'fas fa-star','far fa-star','fas fa-heart','fas fa-home','fas fa-cog','fas fa-tools','fas fa-robot',
+  'fas fa-code','fas fa-cloud','fas fa-server','fas fa-database','fas fa-hdd','fas fa-download',
+  'fas fa-upload','fas fa-link','fas fa-plug','fas fa-key','fas fa-lock','fas fa-shield-alt',
+  'fas fa-search','fas fa-globe','fas fa-map-marker-alt','fas fa-envelope','fas fa-phone',
+  'fas fa-comment','fas fa-comments','fas fa-bullhorn','fas fa-bell','fas fa-bookmark',
+  'fas fa-book','fas fa-graduation-cap','fas fa-chalkboard-teacher','fas fa-lightbulb',
+  'fas fa-camera','fas fa-film','fas fa-music','fas fa-gamepad','fas fa-headphones',
+  'fas fa-tv','fas fa-desktop','fas fa-laptop','fas fa-mobile-alt','fas fa-tablet-alt',
+  'fas fa-shopping-cart','fas fa-store','fas fa-truck','fas fa-box','fas fa-gift',
+  'fas fa-car','fas fa-plane','fas fa-helicopter','fas fa-bicycle','fas fa-bus',
+  'fas fa-file','fas fa-folder','fas fa-folder-open','fas fa-image','fas fa-paint-brush',
+  'fas fa-palette','fas fa-pen','fas fa-pencil-alt','fas fa-edit','fas fa-eraser',
+  'fas fa-chart-bar','fas fa-chart-line','fas fa-chart-pie','fas fa-tasks','fas fa-clipboard',
+  'fas fa-calendar','fas fa-clock','fas fa-history','fas fa-check-circle','fas fa-times-circle',
+  'fas fa-info-circle','fas fa-question-circle','fas fa-exclamation-triangle','fas fa-fire',
+  'fas fa-bolt','fas fa-leaf','fas fa-tree','fas fa-sun','fas fa-moon','fas fa-cloud-sun',
+  'fas fa-user','fas fa-users','fas fa-user-shield','fas fa-user-cog','fas fa-crown',
+  'fas fa-trophy','fas fa-medal','fas fa-flag','fas fa-compass','fas fa-map',
+  'fas fa-rss','fas fa-wifi','fas fa-satellite-dish','fas fa-terminal','fas fa-bug',
+  'fab fa-github','fab fa-docker','fab fa-python','fab fa-js','fab fa-linux',
+  'fab fa-chrome','fab fa-firefox','fab fa-apple','fab fa-android','fab fa-windows',
+  'fab fa-google','fab fa-amazon','fab fa-youtube','fab fa-twitter','fab fa-weixin',
+  'fab fa-qq','fab fa-telegram-plane','fab fa-discord','fab fa-steam','fab fa-spotify'
+];
+
+const App = {
+  data: [],
+  authenticated: false,
+  users: [],
+  currentUser: '',
+
+  init() {
+    $.getJSON('/api/admin/auth/check', r => {
+      this.users = r.users || [];
+      this.currentUser = r.username || '';
+      this.renderUserOptions();
+      if (r.ok) { this.authenticated = true; this.showPanel(); }
+      else this.showLogin();
+    }).fail(() => this.showLogin());
+  },
+
+  renderUserOptions() {
+    const $select = $('#login-user');
+    if (!$select.length) return;
+    $select.empty();
+    this.users.forEach(username => {
+      $select.append(`<option value="${this.esc(username)}">${this.esc(username)}</option>`);
+    });
+    if (this.currentUser) $select.val(this.currentUser);
+  },
+
+  showLogin() {
+    $('#login-page').show(); $('#admin-panel').hide(); $('#btn-logout').hide(); $('#btn-password').hide(); $('#current-user').hide();
+    this.renderUserOptions();
+    $('#login-pw').val('').focus();
+  },
+
+  showPanel() {
+    $('#login-page').hide(); $('#admin-panel').show(); $('#btn-logout').show(); $('#btn-password').show();
+    if (this.currentUser) $('#current-user').text(`当前用户：${this.currentUser}`).show();
+    this.loadData();
+  },
+
+  login() {
+    const username = $('#login-user').val(), pw = $('#login-pw').val(), rem = $('#login-remember').is(':checked');
+    $.ajax({
+      url: '/api/admin/login', method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({username, password: pw, remember: rem}),
+      success: r => {
+        if (r.ok) {
+          this.authenticated = true;
+          this.currentUser = r.username || username;
+          $('#login-error').hide();
+          this.showPanel();
+        }
+      },
+      error: xhr => {
+        const msg = xhr.responseJSON?.error || '登录失败';
+        $('#login-error').text(msg).show();
+      }
+    });
+  },
+
+  logout() {
+    $.post('/api/admin/logout', () => {
+      this.authenticated = false;
+      this.currentUser = '';
+      this.showLogin();
+    });
+  },
+
+  showPasswordModal() {
+    this.showModal('修改密码', `
+      <div class="form-group"><label>用户名</label><input value="${this.esc(this.currentUser)}" disabled></div>
+      <div class="form-group"><label>当前密码</label><input type="password" id="m-current-password" placeholder="请输入当前密码"></div>
+      <div class="form-group"><label>新密码</label><input type="password" id="m-new-password" placeholder="请输入新密码"></div>
+    `, () => {
+      const current_password = $('#m-current-password').val().trim();
+      const new_password = $('#m-new-password').val().trim();
+      if (!current_password || !new_password) return this.toast('请填写完整密码', 'error');
+      $.ajax({
+        url: '/api/admin/password', method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({current_password, new_password}),
+        success: r => {
+          this.closeModal();
+          this.toast(r.message || '密码修改成功', 'success');
+        },
+        error: xhr => {
+          this.toast(xhr.responseJSON?.error || '修改密码失败', 'error');
+        }
+      });
+    });
+  },
+
+  loadData() {
+    $.getJSON('/api/admin/data', r => {
+      if (r.ok) { this.data = r.data; this.render(); }
+    }).fail(() => this.toast('加载数据失败', 'error'));
+  },
+
+  save(msg) {
+    $('#rebuild-overlay').addClass('show');
+    $.ajax({
+      url: '/api/admin/data', method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({data: this.data}),
+      success: r => {
+        $('#rebuild-overlay').removeClass('show');
+        this.toast(msg || (r.ok ? '已保存' : r.message), r.ok ? 'success' : 'error');
+      },
+      error: () => {
+        $('#rebuild-overlay').removeClass('show');
+        this.toast('保存失败', 'error');
+      }
+    });
+  },
+
+  rebuild() {
+    $('#rebuild-overlay').addClass('show');
+    $.post('/api/admin/rebuild', r => {
+      $('#rebuild-overlay').removeClass('show');
+      this.toast(r.ok ? '重建完成' : '重建失败', r.ok ? 'success' : 'error');
+    }, 'json').fail(() => {
+      $('#rebuild-overlay').removeClass('show');
+      this.toast('重建失败', 'error');
+    });
+  },
+
+  // ── Render ──────────────────────────────────────
+  render() {
+    const $list = $('#cat-list').empty();
+    this.data.forEach((cat, ci) => {
+      const isNested = !!cat.list;
+      const count = isNested ? cat.list.reduce((s,t) => s + (t.links||[]).length, 0) : (cat.links||[]).length;
+      const $item = $(`
+        <li class="cat-item" data-index="${ci}">
+          <div class="cat-header">
+            <span class="drag-handle" title="拖动排序"><i class="fas fa-grip-vertical"></i></span>
+            <i class="cat-chevron fas fa-chevron-right"></i>
+            <span class="cat-icon"><i class="${cat.icon||'fas fa-folder'}"></i></span>
+            <span class="cat-name">${this.esc(cat.taxonomy)}</span>
+            <span class="cat-count">${count} 个站点${isNested?'（含子分类）':''}</span>
+            <span class="cat-actions">
+              <button class="btn btn-sm" onclick="App.editCategory(${ci});event.stopPropagation()" title="编辑"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="App.deleteCategory(${ci});event.stopPropagation()" title="删除"><i class="fas fa-trash"></i></button>
+            </span>
+          </div>
+          <div class="cat-body"></div>
+        </li>
+      `);
+      $item.find('.cat-header').on('click', function(e) {
+        if ($(e.target).closest('.cat-actions').length) return;
+        $item.toggleClass('open');
+      });
+      const $body = $item.find('.cat-body');
+      if (isNested) {
+        this.renderNestedBody($body, cat, ci);
+      } else {
+        this.renderFlatBody($body, cat, ci);
+      }
+      $list.append($item);
+    });
+    this.initCatSortable();
+  },
+
+  renderFlatBody($body, cat, ci) {
+    const $ll = $('<div class="link-list"></div>');
+    (cat.links||[]).forEach((link, li) => {
+      $ll.append(this.linkRow(link, ci, null, li));
+    });
+    $body.append($ll);
+    $body.append(`<div class="add-row"><button onclick="App.addLinkTo(${ci},null)"><i class="fas fa-plus"></i> 添加站点</button></div>`);
+    this.initLinkSortable($ll, ci, null);
+  },
+
+  renderNestedBody($body, cat, ci) {
+    const $tabsContainer = $('<div class="term-tabs-container"></div>');
+    const $panesContainer = $('<div class="term-panes-container"></div>');
+
+    (cat.list||[]).forEach((term, ti) => {
+      const isActive = ti === 0 ? 'active' : '';
+      const $tab = $(`<div class="term-tab ${isActive}" data-ti="${ti}">
+        ${this.esc(term.term)} <span class="tab-count">${(term.links||[]).length}</span>
+      </div>`);
+
+      $tab.on('click', function() {
+        $tabsContainer.find('.term-tab').removeClass('active');
+        $(this).addClass('active');
+        $panesContainer.find('.term-pane').removeClass('active');
+        $panesContainer.find(`.term-pane[data-ti="${ti}"]`).addClass('active');
+      });
+      $tabsContainer.append($tab);
+
+      const $pane = $(`<div class="term-pane ${isActive}" data-ti="${ti}">
+        <div class="term-actions">
+          <button class="btn btn-sm" onclick="App.editTerm(${ci},${ti});event.stopPropagation()"><i class="fas fa-edit"></i> 编辑分类</button>
+          <button class="btn btn-sm btn-danger" onclick="App.deleteTerm(${ci},${ti});event.stopPropagation()"><i class="fas fa-trash"></i> 删除分类</button>
+        </div>
+      </div>`);
+
+      const $ll = $('<div class="link-list"></div>');
+      (term.links||[]).forEach((link, li) => {
+        $ll.append(this.linkRow(link, ci, ti, li));
+      });
+      $pane.append($ll);
+      $pane.append(`<div class="add-row"><button onclick="App.addLinkTo(${ci},${ti})"><i class="fas fa-plus"></i> 添加站点</button></div>`);
+      this.initLinkSortable($ll, ci, ti);
+
+      $panesContainer.append($pane);
+    });
+
+    $body.append($tabsContainer);
+    $body.append($panesContainer);
+
+    const $addTab = $(`<div class="term-tab" style="color:var(--primary);cursor:pointer" onclick="App.addTerm(${ci})"><i class="fas fa-plus"></i> 新增子分类</div>`);
+    $tabsContainer.append($addTab);
+  },
+
+  linkRow(link, ci, ti, li) {
+    const logo = link.logo || '';
+    const logoHtml = logo ? `<img class="link-logo" src="${this.esc(logo)}" onerror="this.style.display='none'">` : '<i class="fas fa-globe link-logo" style="font-size:20px;color:#cbd5e0;display:flex;align-items:center;justify-content:center;background:#f8f9fa;"></i>';
+    const args = ti !== null ? `${ci},${ti},${li}` : `${ci},null,${li}`;
+    return $(`
+      <div class="link-item" data-lindex="${li}">
+        <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+        ${logoHtml}
+        <div class="link-content">
+          <span class="link-title" title="${this.esc(link.title)}">${this.esc(link.title)}</span>
+          <span class="link-url" title="${this.esc(link.url)}">${this.esc(link.url)}</span>
+        </div>
+        <span class="link-actions">
+          <button class="btn btn-sm" onclick="App.editLink(${args})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="App.deleteLink(${args})"><i class="fas fa-trash"></i></button>
+        </span>
+      </div>
+    `);
+  },
+
+  // ── Sortable ────────────────────────────────────
+  initCatSortable() {
+    $('#cat-list').sortable({
+      handle: '> .cat-header > .drag-handle',
+      placeholder: 'sortable-placeholder',
+      tolerance: 'pointer',
+      update: () => {
+        const newData = [];
+        $('#cat-list > .cat-item').each(function() {
+          newData.push(App.data[$(this).data('index')]);
+        });
+        App.data = newData;
+        App.save('分类顺序已更新');
+        App.render();
+      }
+    });
+  },
+
+  initLinkSortable($ll, ci, ti) {
+    $ll.sortable({
+      handle: '.drag-handle',
+      placeholder: 'sortable-placeholder',
+      tolerance: 'pointer',
+      update: () => {
+        const links = this.getLinks(ci, ti);
+        const newLinks = [];
+        $ll.find('.link-item').each(function() {
+          newLinks.push(links[$(this).data('lindex')]);
+        });
+        this.setLinks(ci, ti, newLinks);
+        this.save('站点顺序已更新');
+        this.render();
+      }
+    });
+  },
+
+  initTermSortable($tl, ci) {
+    $tl.sortable({
+      handle: '> .term-group > .term-header > .drag-handle',
+      items: '> .term-group',
+      placeholder: 'sortable-placeholder',
+      tolerance: 'pointer',
+      update: () => {
+        const newList = [];
+        $tl.find('> .term-group').each(function() {
+          newList.push(App.data[ci].list[$(this).data('tindex')]);
+        });
+        App.data[ci].list = newList;
+        App.save('子分类顺序已更新');
+        App.render();
+      }
+    });
+  },
+
+  // ── Data helpers ────────────────────────────────
+  getLinks(ci, ti) {
+    if (ti !== null && ti !== undefined) return this.data[ci].list[ti].links || [];
+    return this.data[ci].links || [];
+  },
+  setLinks(ci, ti, links) {
+    if (ti !== null && ti !== undefined) this.data[ci].list[ti].links = links;
+    else this.data[ci].links = links;
+  },
+
+  // ── Category CRUD ───────────────────────────────
+  addCategory() {
+    this.showModal('新增分类', `
+      <div class="form-group"><label>名称</label><input id="m-cat-name" placeholder="请输入分类名称"></div>
+      <div class="form-group"><label>图标</label><input id="m-cat-icon" value="fas fa-folder" placeholder="fas fa-folder">
+        ${this.iconPickerHtml('m-cat-icon')}</div>
+      <div class="form-group"><label>类型</label>
+        <select id="m-cat-type"><option value="flat">平铺（仅站点）</option><option value="nested">分组（含子分类）</option></select></div>
+    `, () => {
+      const name = $('#m-cat-name').val().trim();
+      if (!name) return this.toast('请填写名称', 'error');
+      const icon = $('#m-cat-icon').val().trim() || 'fas fa-folder';
+      const type = $('#m-cat-type').val();
+      const cat = {taxonomy: name, icon};
+      if (type === 'nested') cat.list = []; else cat.links = [];
+      this.data.push(cat);
+      this.closeModal();
+      this.save('分类已添加');
+      this.render();
+    });
+  },
+
+  editCategory(ci) {
+    const cat = this.data[ci];
+    this.showModal('编辑分类', `
+      <div class="form-group"><label>名称</label><input id="m-cat-name" value="${this.esc(cat.taxonomy)}"></div>
+      <div class="form-group"><label>图标</label><input id="m-cat-icon" value="${this.esc(cat.icon||'')}">
+        ${this.iconPickerHtml('m-cat-icon')}</div>
+    `, () => {
+      const name = $('#m-cat-name').val().trim();
+      if (!name) return this.toast('请填写名称', 'error');
+      cat.taxonomy = name;
+      cat.icon = $('#m-cat-icon').val().trim() || 'fas fa-folder';
+      this.closeModal();
+      this.save('分类已更新');
+      this.render();
+    });
+  },
+
+  deleteCategory(ci) {
+    if (!confirm(`确认删除“${this.data[ci].taxonomy}”及其中全部站点吗？`)) return;
+    this.data.splice(ci, 1);
+    this.save('分类已删除');
+    this.render();
+  },
+
+  // ── Term CRUD ───────────────────────────────────
+  addTerm(ci) {
+    this.showModal('新增子分类', `
+      <div class="form-group"><label>名称</label><input id="m-term-name" placeholder="请输入子分类名称"></div>
+    `, () => {
+      const name = $('#m-term-name').val().trim();
+      if (!name) return this.toast('请填写名称', 'error');
+      if (!this.data[ci].list) this.data[ci].list = [];
+      this.data[ci].list.push({term: name, links: []});
+      this.closeModal();
+      this.save('子分类已添加');
+      this.render();
+    });
+  },
+
+  editTerm(ci, ti) {
+    const term = this.data[ci].list[ti];
+    this.showModal('编辑子分类', `
+      <div class="form-group"><label>名称</label><input id="m-term-name" value="${this.esc(term.term)}"></div>
+    `, () => {
+      const name = $('#m-term-name').val().trim();
+      if (!name) return this.toast('请填写名称', 'error');
+      term.term = name;
+      this.closeModal();
+      this.save('子分类已更新');
+      this.render();
+    });
+  },
+
+  deleteTerm(ci, ti) {
+    if (!confirm(`确认删除“${this.data[ci].list[ti].term}”及其中全部站点吗？`)) return;
+    this.data[ci].list.splice(ti, 1);
+    this.save('子分类已删除');
+    this.render();
+  },
+
+  // ── Link CRUD ───────────────────────────────────
+  addLinkTo(ci, ti) {
+    this.showLinkModal('添加站点', {}, (link) => {
+      const links = this.getLinks(ci, ti) || [];
+      links.push(link);
+      this.setLinks(ci, ti, links);
+      this.closeModal();
+      this.save('站点已添加');
+      this.render();
+    });
+  },
+
+  addLink() {
+    // Quick add with category selector
+    let catOpts = this.data.map((c,i) => {
+      if (c.list) {
+        return c.list.map((t,j) => `<option value="${i}:${j}">${this.esc(c.taxonomy)} / ${this.esc(t.term)}</option>`).join('');
+      }
+      return `<option value="${i}">${this.esc(c.taxonomy)}</option>`;
+    }).join('');
+
+    this.showModal('快速添加站点', `
+      <div class="form-group"><label>URL</label>
+        <div style="display:flex;gap:4px"><input id="m-link-url" placeholder="https://example.com" style="flex:1">
+        <button class="btn btn-sm" onclick="App.autoFillFavicon()"><i class="fas fa-magic"></i> 自动获取</button></div></div>
+      <div class="form-group"><label>标题</label><input id="m-link-title" placeholder="请输入站点名称"></div>
+      <div class="form-group"><label>描述</label><input id="m-link-desc" placeholder="请输入简介"></div>
+      <div class="form-group"><label>Logo 地址</label>
+        <div style="display:flex;align-items:center;gap:4px"><input id="m-link-logo" placeholder="自动识别" style="flex:1">
+        <img class="logo-preview" id="m-logo-preview" style="display:none"></div></div>
+      <div class="form-group"><label>分类</label><select id="m-link-cat">${catOpts}</select></div>
+    `, () => {
+      const title = $('#m-link-title').val().trim();
+      const url = $('#m-link-url').val().trim();
+      if (!title || !url) return this.toast('请填写标题和 URL', 'error');
+      const link = {
+        title, url,
+        logo: $('#m-link-logo').val().trim(),
+        description: $('#m-link-desc').val().trim() || title
+      };
+      const catVal = $('#m-link-cat').val();
+      const parts = catVal.split(':');
+      const ci = parseInt(parts[0]);
+      const ti = parts.length > 1 ? parseInt(parts[1]) : null;
+      const links = this.getLinks(ci, ti) || [];
+      links.push(link);
+      this.setLinks(ci, ti, links);
+      this.closeModal();
+      this.save('站点已添加');
+      this.render();
+    });
+  },
+
+  editLink(ci, ti, li) {
+    const link = ti !== null ? this.data[ci].list[ti].links[li] : this.data[ci].links[li];
+    this.showLinkModal('编辑站点', link, (updated) => {
+      if (ti !== null) this.data[ci].list[ti].links[li] = updated;
+      else this.data[ci].links[li] = updated;
+      this.closeModal();
+      this.save('站点已更新');
+      this.render();
+    });
+  },
+
+  deleteLink(ci, ti, li) {
+    const links = this.getLinks(ci, ti);
+    const link = links[li];
+    if (!confirm(`确认删除“${link.title}”吗？`)) return;
+    links.splice(li, 1);
+    this.setLinks(ci, ti, links);
+    this.save('站点已删除');
+    this.render();
+  },
+
+  showLinkModal(title, link, onSave) {
+    this.showModal(title, `
+      <div class="form-group"><label>URL</label>
+        <div style="display:flex;gap:4px"><input id="m-link-url" value="${this.esc(link.url||'')}" placeholder="https://example.com" style="flex:1">
+        <button class="btn btn-sm" onclick="App.autoFillFavicon()"><i class="fas fa-magic"></i> 自动获取</button></div></div>
+      <div class="form-group"><label>标题</label><input id="m-link-title" value="${this.esc(link.title||'')}" placeholder="请输入站点名称"></div>
+      <div class="form-group"><label>描述</label><input id="m-link-desc" value="${this.esc(link.description||'')}" placeholder="请输入简介"></div>
+      <div class="form-group"><label>Logo 地址</label>
+        <div style="display:flex;align-items:center;gap:4px"><input id="m-link-logo" value="${this.esc(link.logo||'')}" placeholder="Logo 地址或自动识别" style="flex:1">
+        <img class="logo-preview" id="m-logo-preview" src="${this.esc(link.logo||'')}" style="${link.logo?'':'display:none'}"></div></div>
+    `, () => {
+      const t = $('#m-link-title').val().trim(), u = $('#m-link-url').val().trim();
+      if (!t || !u) return this.toast('请填写标题和 URL', 'error');
+      onSave({title: t, url: u, logo: $('#m-link-logo').val().trim(), description: $('#m-link-desc').val().trim() || t});
+    });
+    // auto-update preview
+    $('#m-link-logo').on('input', function() {
+      const v = $(this).val(); const $p = $('#m-logo-preview');
+      if (v) { $p.attr('src', v).show(); } else $p.hide();
+    });
+  },
+
+  autoFillFavicon() {
+    const url = $('#m-link-url').val().trim();
+    if (!url) return this.toast('请先输入 URL', 'error');
+    $.getJSON('/api/admin/favicon?url=' + encodeURIComponent(url), r => {
+      if (r.ok) {
+        $('#m-link-logo').val(r.favicon);
+        $('#m-logo-preview').attr('src', r.favicon).show();
+      }
+    });
+  },
+
+  // ── Icon picker ─────────────────────────────────
+  iconPickerHtml(inputId) {
+    let html = '<div class="icon-picker">';
+    ICONS.forEach(ic => {
+      html += `<i class="${ic}" title="${ic}" onclick="$('#${inputId}').val('${ic}');$('.icon-picker i').removeClass('selected');$(this).addClass('selected')"></i>`;
+    });
+    return html + '</div>';
+  },
+
+  // ── Modal helpers ───────────────────────────────
+  showModal(title, bodyHtml, onSave) {
+    $('#modal-box').html(`
+      <h3>${title}</h3>
+      ${bodyHtml}
+      <div class="modal-footer">
+        <button class="btn" onclick="App.closeModal()">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    `);
+    $('#modal-save').on('click', onSave);
+    $('#modal').addClass('show');
+    setTimeout(() => $('#modal-box input:first').focus(), 100);
+  },
+
+  closeModal() { $('#modal').removeClass('show'); },
+
+  // ── Site Settings ────────────────────────────────
+  openSettings() {
+    $.getJSON('/api/admin/settings', r => {
+      if (r.ok) {
+        const bgUrl = r.data.backgroundImage || '';
+        const logoUrl = r.data.logoUrl || '';
+
+        this.showModal('站点设置', `
+          <div class="form-group">
+            <label>自定义网站 Logo (可选)</label>
+            <div style="display:flex;gap:4px">
+              <input id="m-setting-logo" value="${this.esc(logoUrl)}" placeholder="https://example.com/logo.png" style="flex:1">
+              <img class="logo-preview" id="m-logo-preview" src="${this.esc(logoUrl)}" style="${logoUrl?'':'display:none'}">
+            </div>
+            <small class="text-muted" style="display:block;margin-top:6px;">填入图片链接以替换左上角默认 Logo。留空则使用目标站点原有 Logo。</small>
+          </div>
+          <hr style="border-color: var(--border); margin: 20px 0;">
+          <div class="form-group">
+            <label>背景图片 URL (可选)</label>
+            <div style="display:flex;gap:4px">
+              <input id="m-setting-bg" value="${this.esc(bgUrl)}" placeholder="https://example.com/bg.jpg" style="flex:1">
+              <img class="logo-preview" id="m-bg-preview" src="${this.esc(bgUrl)}" style="${bgUrl?'':'display:none'}">
+            </div>
+            <small class="text-muted" style="display:block;margin-top:6px;">填入图片链接以启用整站壁纸。留空则恢复默认背景。</small>
+          </div>
+        `, () => {
+          const url = $('#m-setting-bg').val().trim();
+          const lUrl = $('#m-setting-logo').val().trim();
+          this.saveSettings({ backgroundImage: url, logoUrl: lUrl });
+        });
+
+        $('.modal-footer').prepend(`<button class="btn btn-danger" id="modal-clear-settings" style="margin-right:auto;"><i class="fas fa-trash"></i> 恢复默认配置</button>`);
+        $('#modal-clear-settings').on('click', () => {
+          $('#m-setting-bg').val('');
+          $('#m-setting-logo').val('');
+          this.saveSettings({ backgroundImage: '', logoUrl: '' });
+        });
+
+        $('#m-setting-bg').on('input', function() {
+          const v = $(this).val(); const $p = $('#m-bg-preview');
+          if (v) { $p.attr('src', v).show(); } else $p.hide();
+        });
+        $('#m-setting-logo').on('input', function() {
+          const v = $(this).val(); const $p = $('#m-logo-preview');
+          if (v) { $p.attr('src', v).show(); } else $p.hide();
+        });
+      } else {
+        this.toast('加载设置失败', 'error');
+      }
+    }).fail(() => this.toast('加载设置失败', 'error'));
+  },
+
+  saveSettings(data) {
+    $('#rebuild-overlay').addClass('show');
+    $.ajax({
+      url: '/api/admin/settings', method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({data: data}),
+      success: r => {
+        $('#rebuild-overlay').removeClass('show');
+        if (r.ok) {
+          this.closeModal();
+          this.toast('站点设置已保存', 'success');
+        } else {
+          this.toast(r.error || '保存失败', 'error');
+        }
+      },
+      error: xhr => {
+        $('#rebuild-overlay').removeClass('show');
+        this.toast(xhr.responseJSON?.error || '保存失败', 'error');
+      }
+    });
+  },
+
+  // ── Expand / Collapse ───────────────────────────
+  expandAll() { $('.cat-item').addClass('open'); },
+  collapseAll() { $('.cat-item').removeClass('open'); },
+
+  // ── Export / Import ──────────────────────────────
+  exportData() {
+    this.showModal('导出数据', `
+      <div class="form-group"><label>导出格式</label>
+        <select id="m-export-format"><option value="yaml">YAML (.yml)</option><option value="json">JSON (.json)</option></select></div>
+      <p style="font-size:13px;color:var(--muted)">将导出当前数据（${this.data.length} 个分类）。</p>
+    `, () => {
+      const fmt = $('#m-export-format').val();
+      this.closeModal();
+      const token = new Date().getTime();
+      window.location.href = '/api/admin/export?format=' + fmt + '&t=' + token;
+      this.toast('已导出为 ' + fmt.toUpperCase(), 'success');
+    });
+  },
+
+  importData() {
+    const $input = $('#import-file-input');
+    $input.val('');
+    $input.off('change').on('change', () => {
+      const file = $input[0].files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['yml','yaml','json'].includes(ext)) {
+        this.toast('请选择 .yml、.yaml 或 .json 文件', 'error');
+        return;
+      }
+      this.showModal('确认导入', `
+        <p style="font-size:14px;margin-bottom:12px"><strong>警告：</strong>这将用以下文件替换当前全部数据：</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:8px"><i class="fas fa-file"></i> ${this.esc(file.name)}</p>
+        <p style="font-size:13px;color:var(--muted)">当前数据会先自动创建备份。</p>
+      `, () => {
+        this.closeModal();
+        $('#rebuild-overlay').addClass('show');
+        const fd = new FormData();
+        fd.append('file', file);
+        $.ajax({
+          url: '/api/admin/import', method: 'POST',
+          data: fd, processData: false, contentType: false,
+          success: r => {
+            $('#rebuild-overlay').removeClass('show');
+            if (r.ok) { this.loadData(); this.toast('导入成功', 'success'); }
+            else this.toast(r.message || '导入失败', 'error');
+          },
+          error: xhr => {
+            $('#rebuild-overlay').removeClass('show');
+            this.toast(xhr.responseJSON?.error || '导入失败', 'error');
+          }
+        });
+      });
+    });
+    $input.trigger('click');
+  },
+
+  // ── Toast ───────────────────────────────────────
+  toast(msg, type) {
+    type = type || 'success';
+    const $t = $(`<div class="toast-msg ${type}">${this.esc(msg)}</div>`);
+    $('#toast-wrap').append($t);
+    setTimeout(() => $t.fadeOut(300, () => $t.remove()), 2500);
+  },
+
+  // ── Escape ──────────────────────────────────────
+  esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+};
+
+// Close modal on overlay click
+$('#modal').on('click', function(e) { if (e.target === this) App.closeModal(); });
+$(document).on('keydown', function(e) { if (e.key === 'Escape') App.closeModal(); });
+
+$(function() { App.init(); });
+</script>
+</body>
+</html>

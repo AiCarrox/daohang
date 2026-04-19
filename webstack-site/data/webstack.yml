@@ -1,0 +1,58 @@
+---
+
+
+- taxonomy: "蹬摩托"
+  icon: fas fa-bicycle
+  links:
+    - title: "韦佬小站"
+      url: https://newapi.6553601.xyz/
+      logo: https://newapi.6553601.xyz/logo
+      description: "韦佬小站"
+    - title: "照妖镜"
+      url: https://apitest.6553501.xyz/
+      description: "照妖镜"
+    - title: "自助绑卡"
+      url: http://38.55.39.26:8501/
+      description: "teamplus自助绑卡"
+    - title: "outlook接码"
+      url: https://code.0131229.xyz/
+      description: "outlook接码"
+    - title: "team子号导出"
+      url: https://accept.0131229.xyz
+      description: "team子号outlook自助导出文件"
+    - title: "Hotmail邮箱购买"
+      url: https://zg68mail.cn/
+      description: "Hotmail邮箱购买"
+    - title: "低价谷歌邮箱"
+      url: https://ai666.dnxb.cc
+      description: "低价谷歌邮箱"
+
+- taxonomy: "图片处理"
+  icon: fas fa-image
+  links:
+    - title: "好用抠图"
+      url: https://huggingface.co/spaces/briaai/BRIA-RMBG-2.0
+      description: "好用抠图"
+    - title: "生图公益站"
+      url: https://ryanai.org
+      description: "生图公益站"
+
+- taxonomy: "苏肉专用"
+  icon: fas fa-robot
+  list:
+    - term: "q群公益站"
+      links:
+        - title: "薄荷群里"
+          url: https://api.tianbohe.xyz
+          logo: https://favicon.im/api.tianbohe.xyz
+          description: "gemini可用"
+        - title: "屿情公益站"
+          url: https://yuqing-suluokk.com
+          logo: https://favicon.im/yuqing-suluokk.com
+          description: "可用gemini"
+        - title: "捐献api共享公益站"
+          url: https://amp.wanai.de
+          logo: https://favicon.im/amp.wanai.de
+          description: "捐献api共享公益站"
+    - term: "test"
+      links:
